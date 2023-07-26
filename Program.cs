@@ -5,7 +5,7 @@ using System.Diagnostics;
 var timedRun = true;
 var iterCount = 1;
 
-var ns = "AOC22";
+var namespaces = new [] {"AOC21", "AOC22"};
 
 try
 {
@@ -36,33 +36,52 @@ if(timedRun)
         var cOut = Console.Out;
 
         var types = System.Reflection.Assembly.GetExecutingAssembly().GetTypes();
-        // find all the days
-        var dayClasses = types.Where(x => x.Namespace == ns).Where(x => x.GetInterfaces().Any(x => x == typeof(IDay))).Where(x => x.Name != "WorkInProgress").OrderBy(x => x.Name.GetInts().First());
-        var zippedList = Enumerable.Range(1, dayClasses.Count()).Zip(dayClasses);
-        List<IDay> days = new List<IDay>();
-        foreach(var (i, d) in zippedList)
-        {
-                var nd = (IDay)d.GetConstructors().Single().Invoke(new object []{});
-                var year = ns.GetInts().Single();
-                var input = $"inputs/20{year}/{i}.in";
-                nd.inputFile = input;
-                days.Add(nd);
-        }
-
         Console.WriteLine("=====  Starting Timed Run =====");
         var timer = new Stopwatch();
         timer.Start();
-        var times = new List<long>();
-        foreach(var (i, day) in days.Enumerate())
+        foreach(var ns in namespaces)
         {
-                var ts = timer.ElapsedMilliseconds;
-                Console.SetOut(writer);
-                day.Execute();
-                Console.SetOut(cOut);
-                var te = timer.ElapsedMilliseconds;
-                Console.WriteLine($"Day {i + 1}: {te - ts}");
-                times.Add(te-ts);
+                var year = ns.GetInts().Single();
+                Console.WriteLine($"=====  {year} =====");
+                // find all the days
+                var dayClasses = types.Where(x => x.Namespace == ns).Where(x => x.GetInterfaces().Any(x => x == typeof(IDay))).Where(x => x.Name != "WorkInProgress").OrderBy(x => x.Name.GetInts().First());
+                var zippedList = Enumerable.Range(1, dayClasses.Count()).Zip(dayClasses);
+                List<IDay> days = new List<IDay>();
+                foreach(var (i, d) in zippedList)
+                {
+                        var nd = (IDay)d.GetConstructors().Single().Invoke(new object []{});
+                        var input = $"inputs/20{year}/{i}.in";
+                        nd.inputFile = input;
+                        days.Add(nd);
+                }
+
+                var times = new List<long>();
+                foreach(var (i, day) in days.Enumerate())
+                {
+                        var ts = timer.ElapsedMilliseconds;
+                        Console.SetOut(writer);
+                        day.Execute();
+                        Console.SetOut(cOut);
+                        var te = timer.ElapsedMilliseconds;
+                        Console.WriteLine($"Day {i + 1}: {te - ts}");
+                        times.Add(te-ts);
+                }
+                Console.WriteLine($"Total Time {year}: {times.Sum()}");
         }
-        Console.WriteLine($"Total Time: {times.Sum()}");
         Console.WriteLine("=====  End Timed Run =====");
+        /*
+        This gets nice output from 2022 which originally returnd (string, string) pairs
+        and now just prints them.
+
+        2021 is still chaos. Faster to implement and less boilerplate than 2022 was originally
+        but just prints stuff randomly. 
+
+        That's better for competitive and quick development but weirder for the optimizations at the end.
+        var output = writer.ToString();
+        var lines = output.Split(Environment.NewLine);
+        foreach(var line in lines.Where(x => x.StartsWith('(')))
+        {
+                Console.WriteLine(line);
+        }
+        */
 }
