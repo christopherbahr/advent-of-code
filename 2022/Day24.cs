@@ -12,7 +12,6 @@ public class Day24 : IDay
         public string inputFile { get; set; } = "wip.in";
         List<(int, int, int)> rMap = new List<(int, int, int)>();
         List<(int, int, int)> cMap = new List<(int, int, int)>();
-        int loopCount = 0;
 
         (sbyte, sbyte)[] dirs = new(sbyte, sbyte)[] { (1, 0), (0, 1), (0,0), (-1, 0), (0, -1) };
         Dictionary<(int, int, int), int> cache = new Dictionary<(int, int, int), int>();

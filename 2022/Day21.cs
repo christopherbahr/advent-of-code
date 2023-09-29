@@ -188,13 +188,6 @@ public class Day21 : IDay
                 }
         }
 
-        private class BinaryTree
-        {
-                public BinaryTree? Left;
-                public BinaryTree? Right;
-                public Operation Operation;
-        }
-
         private class Operation
         {
                 public string Operator;

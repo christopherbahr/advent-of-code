@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-var timedRun = true;
+var timedRun = false;
 var iterCount = 1;
 
-var namespaces = new [] {"AOC21", "AOC22"};
+var namespaces = new [] {"AOC20", "AOC21", "AOC22"};
 
 try
 {
