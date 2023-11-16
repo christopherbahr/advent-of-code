@@ -1,9 +1,24 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Data;
 using System.Diagnostics;
+using System.Net;
 
-var timedRun = false;
+var timedRun = true;
 var iterCount = 1;
+var cookieStr = string.Empty;
+HttpClient? client = null;
+var tryFetchInput = false;
+if(cookieStr != string.Empty)
+{
+        var cookieContainer = new CookieContainer();
+        var handler = new HttpClientHandler() {CookieContainer = cookieContainer};
+        client = new HttpClient(handler);
+        var cookie = new Cookie("session", cookieStr);
+        cookie.Domain = "adventofcode.com";
+        cookieContainer.Add(cookie);
+        tryFetchInput = true;
+}
 
 var namespaces = new [] {"AOC20", "AOC21", "AOC22"};
 
@@ -52,6 +67,22 @@ if(timedRun)
                         var nd = (IDay)d.GetConstructors().Single().Invoke(new object []{});
                         var input = $"inputs/20{year}/{i}.in";
                         nd.inputFile = input;
+                        if(!File.Exists(input) && tryFetchInput)
+                        {
+                                var resp = await client!.GetAsync($"https://adventofcode.com/20{year}/day/{i}/input");
+                                if(resp.IsSuccessStatusCode)
+                                {
+                                        var data = await resp.Content.ReadAsStringAsync();
+                                        data = data.TrimEnd('\n');
+                                        //var splitData = data.Split(Environment.NewLine);
+                                        File.WriteAllLines(input, new[] {data} );
+                                }
+                                else
+                                {
+                                        Console.WriteLine($"Missing input for 20{year} {i}. Expect failure.");
+                                }
+
+                        }
                         days.Add(nd);
                 }
 

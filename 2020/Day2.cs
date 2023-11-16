@@ -1,3 +1,4 @@
+namespace AOC20;
 public class Day2 : IDay
 {
         public string inputFile { get; set; } = "wip.in";
