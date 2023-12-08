@@ -14,9 +14,9 @@ Particularly in 2021 I've taken good notes of all the various things I thought o
 Input files should be called `{DayNumber}.in` and placed in a folder called `inputs/{yearNumber}`. 
 
 ## Working On Problems
-To work on a problem copy the input to a file called `wip.in` in the root folder and develop in WorkInProgress.cs. Once the problem is solveg copy the day into wherever it belongs.
+To work on a problem copy the input to a file called `wip.in` in the root folder and develop in WorkInProgress.cs. Once the problem is solved copy the day into wherever it belongs.
 
 ## Run Types
-There is a toggle in Program.cs `timedRun`. When false it will only run `WorkInProgress.cs`, when true it will run every day from every year and time each one.
+There is a toggle in Program.cs `timedRun`. When false it will only run `WorkInProgress.cs`, when true it will run every day from every year and time each one. If you don't have the input files (which are not checked in at the request of the advent of code maintainer) you can add a cookie from your logged in browser to the CookieStr variable and it will download the input for each file.
 
 There is also an `iterCount` variable that can be used to run `WorkInProgress` many times to get the average time.

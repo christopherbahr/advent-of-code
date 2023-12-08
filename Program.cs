@@ -3,12 +3,32 @@
 using System.Data;
 using System.Diagnostics;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
+using System.Runtime;
 
-var timedRun = true;
+
+var timedRun = false;
 var iterCount = 1;
 var cookieStr = string.Empty;
 HttpClient? client = null;
 var tryFetchInput = false;
+
+foreach(var (i, arg) in args.Enumerate()) 
+{
+        if(arg == "-t" || arg == "--timed")
+        {
+                timedRun = true;
+        }
+        if(arg == "-c" || arg == "--cookie")
+        {
+                cookieStr = args[i + 1];
+        }
+        if(arg == "-i" || arg == "--iterations")
+        {
+                iterCount = int.Parse(args[i+1]);
+        }
+}
+
 if(cookieStr != string.Empty)
 {
         var cookieContainer = new CookieContainer();
@@ -20,7 +40,7 @@ if(cookieStr != string.Empty)
         tryFetchInput = true;
 }
 
-var namespaces = new [] {"AOC20", "AOC21", "AOC22"};
+var namespaces = new [] {"AOC20", "AOC21", "AOC22", "AOC23"};
 
 try
 {

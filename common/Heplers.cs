@@ -1,9 +1,10 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 public static class Helpers
 {
-        public static IEnumerable<(int i, T)> Enumerate<T>(this IEnumerable<T> input)
+        public static IEnumerable<(int i, T val)> Enumerate<T>(this IEnumerable<T> input)
         {
                 var i = 0;
                 foreach(var thing in input)
@@ -22,6 +23,29 @@ public static class Helpers
                                 yield return ((i, j), grid[i,j]);
                         }
                 }
+        }
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> input, T match)
+        {
+                return Split(input, x => x?.Equals(match) ?? false);
+        }
+
+        public static IEnumerable<IEnumerable<T>> Split<T>(this IEnumerable<T> input, Func<T, bool> predicate)
+        {
+                var workingEnum = new List<T>();
+                foreach(var thing in input)
+                {
+                        if(predicate(thing))
+                        {
+                                yield return workingEnum;
+                                workingEnum = new List<T>();
+                                continue;
+                        }
+                        else
+                        {
+                                workingEnum.Add(thing);
+                        }
+                }
+                yield return workingEnum;
         }
 
         public static char[,] AsCharGrid(this IEnumerable<string> input)
@@ -119,7 +143,7 @@ public static class Helpers
         {
                 var rowCount = grid.GetLength(0);
                 var colCount = grid.GetLength(1);
-                return (row >= 0 && row < rowCount && column >= 0 && column < colCount);
+                return row >= 0 && row < rowCount && column >= 0 && column < colCount;
         }
 
         public static (int, int) North = (-1, 0);
@@ -149,8 +173,48 @@ public static class Helpers
                 }
         }
 
+        public static IEnumerable<(int cr, int cc)> cDirs<T>(this (int r, int c) current, T[,] grid)
+        {
+                return current.cDirs().Where(x => grid.ContainsPoint(x.cr, x.cc));
+        }
+
+        public static IEnumerable<(int cr, int cc)> allDirs<T>(this (int r, int c) current, T[,] grid)
+        {
+                return current.allDirs().Where(x => grid.ContainsPoint(x.cr, x.cc));
+        }
+
         public static (int, int)[] rawCDirs = new[] {North, South, East, West};
         public static (int, int)[] rawAllDirs = new[] {North, NorthWest, NorthEast, South, SouthWest, SouthEast,East, West};
+
+        public static int ManhattanDistance(this (int r, int c) p, (int r, int c) op)
+        {
+                return Math.Abs(p.r - op.r) + Math.Abs(p.c - op.c);
+        } 
+
+        public static U GetOrAdd<T, U>(this Dictionary<T, U> dict, T key,  Func<U> factory)
+                where T : notnull
+        {
+                if(!dict.TryGetValue(key, out var val))
+                {
+                        var newVal = factory.Invoke();
+                        dict[key] = newVal;
+                        return newVal;
+                }
+                return val;
+        }
+
+        public static void AddToList<T, U>(this Dictionary<T, IList<U>> dict, T key, U entry)
+                where T : notnull
+        {
+                if(!dict.TryGetValue(key, out var val))
+                {
+                        dict[key] = new List<U> { entry };
+                }
+                else
+                {
+                        val.Add(entry);
+                }
+        }
 
         public static void AddToVal<T>(this Dictionary<T, int> dict, T key, int v)
                 where T : notnull
@@ -204,6 +268,32 @@ public static class Helpers
                                   .ToList();
         }
 
+        public static List<long> GetLongs(this string input)
+        {
+                var r = new Regex(@"(-?\d+)");
+                var matches = r.Matches(input);
+
+                return matches.SelectMany(x => x.Captures)
+                                  .Select(x => x.Value)
+                                  .Select(x => { var p = long.TryParse(x, out var v); return(p, v);} )
+                                  .Where(x => x.p)
+                                  .Select(x => x.v)
+                                  .ToList();
+        }
+
+        public static bool IsDigit(this char input)
+        {
+                return input.GetDigit().isDigit;
+        }
+
+        public static (bool isDigit, int val) GetDigit(this char input)
+        {
+                if(int.TryParse(new[] {input}, out var val))
+                {
+                        return (true, val);
+                }
+                return (false, -1);
+        }
 }
 
 public class LambdaComparer<T> : IComparer<T>
