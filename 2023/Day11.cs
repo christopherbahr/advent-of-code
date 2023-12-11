@@ -1,6 +1,5 @@
-using System.Numerics;
-
-public class WorkInProgress : IDay
+namespace AOC23;
+public class Day11 : IDay
 {
         public string inputFile { get; set; } = "wip.in";
         public void Execute()

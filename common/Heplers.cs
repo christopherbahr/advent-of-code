@@ -101,6 +101,28 @@ public static class Helpers
                 }
         }
 
+        /// <summary>
+        /// Useful for comparing every element against every other element in a list.
+        /// Insists on the list so that we can have random access though it would b e
+        /// possible to do this based on multiple enumerators without too much difficulty
+        /// in practice it's almost always fine to just use a list.
+        /// Note: This will not return the items on the diagonal. So you wont compare the
+        /// first against the first ever.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static IEnumerable<(T v1, T v2)> TriangleIter<T>(this IList<T> input)
+        {
+                foreach(var i in Enumerable.Range(0, input.Count))
+                {
+                        foreach(var j in Enumerable.Range(i + 1, input.Count - i - 1))
+                        {
+                                yield return (input[i], input[j]);
+                        }
+                }
+        }
+
         public static void PrettyPrint<T>(this T[,] grid)
                 where T : notnull
         {
@@ -115,7 +137,7 @@ public static class Helpers
                 }
         }
 
-        private static void PrettyPrint(this HashSet<(int, int)> grid)
+        public static void PrettyPrint(this HashSet<(int, int)> grid)
         {
                 var minr = grid.Min(x => x.Item1);
                 var maxr = grid.Max(x => x.Item1);
@@ -308,4 +330,61 @@ public class LambdaComparer<T> : IComparer<T>
         {
                 return _comparison.Invoke(x, y);
         }
+}
+
+
+public class CRTCalculator
+{
+        private static BigInteger ModularInverse(BigInteger a, BigInteger b)
+        {
+                var b0 = b;
+                BigInteger x0 = 0;
+                BigInteger x1 = 1;
+
+                if (b == 1)
+                {
+                        return 1;
+                }
+
+                while (a > 1)
+                {
+                        var q = a / b;
+
+                        var temp = b;
+                        b = a % b;
+                        a = temp;
+
+                        temp = x0;
+
+                        x0 = x1 - q * x0;
+
+                        x1 = temp;
+                }
+
+                // Make x1 positive  
+                if (x1 < 0)
+                {
+                        x1 += b0;
+                }
+
+                return x1;
+        }
+
+        public static BigInteger CRT(IEnumerable<(int num, int rem)> values)
+        {
+                var prod = values.Aggregate(new BigInteger(1), (acc, x) => x.num * acc);
+
+                BigInteger result = 0;
+
+                foreach (var (num, rem) in values)
+                {
+                        var pp = prod / num;
+                        result += rem * ModularInverse(pp, num) * pp;
+                }
+
+                var res = result % prod;
+                
+                return res;
+        }
+
 }
